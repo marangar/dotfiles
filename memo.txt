@@ -1,0 +1,105 @@
+-------
+TOGGLES
+-------
+
+F3: toggle for paste from external application
+F4: toggle for cscope dinamic db update
+
+----
+JEDI
+----
+
+Completion <C-Space>
+Goto definitions <leader>g (follow identifier as far as possible, includes imports and statements)
+Show Documentation/Pydoc K (shows a popup with assignments)
+Renaming <leader>r
+Usages <leader>s (shows all the usages of a name)
+Open module, e.g. :Pyimport os (opens the os module)
+
+Put .pylintrc in project root to customize pylint warning/errors
+
+--------
+NERDTREE
+--------
+
+:NERDTree
+:NERDTreeToggle                 mapped to Ctrl-n
+To move between windows         Ctrl-w followed by Left,Right
+Press o to open the file in a new buffer or open/close directory.
+Press t to open the file in a new tab.
+Press i to open the file in a new horizontal split.
+Press s to open the file in a new vertical split.
+Press p to go to parent directory.
+Press r to refresh the current directory.
+All other keyboard shortcuts can be found by pressing ?. Press ? again to get back to file tree.
+
+------------
+CSCOPE/RTAGS
+------------
+
+<leader> followed by:
+
+ ++++++++++++++++
+ CSCOPE AND RTAGS
+ ++++++++++++++++
+ 's'   symbol: find all references to the token under cursor
+ 'g'   global: find global definition(s) of the token under cursor
+ 'c'   calls:  find all calls to the function name under cursor
+ 'm'   macro expansion (implemented with custom function, not with cscope)
+ ++++++++++
+ ONLY RTAGS
+ ++++++++++
+ 'r'   rename: rename symbol under cursor
+ +++++++++++
+ ONLY CSCOPE
+ +++++++++++
+ 't'   text:   find all instances of the text under cursor
+ 'e'   egrep:  egrep search for the word under cursor
+ 'f'   file:   open the filename under cursor
+ 'i'   includes: find files that include the filename under cursor
+ 'd'   called: find functions that function under cursor calls
+
+To index a project with rtags:
+ rc -J (in directory containing 'compile_commands.json')
+
+To create compile_commands.json:
+ cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1 .
+   or
+ bear make <args>
+
+To create cscope database:
+ cscope -qbRk -I /usr/include
+
+Put compiler flags (got from "make -n" for example) in:
+ .syntastic_config
+on the same directory as cscope.* files
+
+--------------
+CLANG_COMPLETE
+--------------
+
+To complete:
+ Ctrl-Tab (original was Ctrl-x Ctrl-u)
+
+When completing function parameters:
+ after a completetion you can use <Tab> in normal mode to jump to the
+ next parameter
+
+Put compiler flags (got from "make -n" for example) in:
+ .clang_complete
+on the project root
+
+----------
+COMMENTARY
+----------
+
+gc{motion}              Comment or uncomment lines that {motion} moves over.
+gcc                     Comment or uncomment [count] lines.
+{Visual}gc              Comment or uncomment the highlighted lines.
+gc                      Text object for a comment (operator pending mode
+                        only.)
+gcgc                    Uncomment the current and adjacent commented lines.
+gcu
+
+:[range]Commentary      Comment or uncomment [range] lines
+

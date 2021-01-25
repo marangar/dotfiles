@@ -1,0 +1,132 @@
+#!/usr/bin/env python
+from __future__ import print_function
+import sys
+import os
+import json
+import re
+import subprocess
+
+# regex to find relative paths like '-I./../../include'
+rel_path_template = re.compile(r"\-[a-zA-Z]+(\.\/)*(\.\.\/).*")
+
+def display_help(prog):
+    print()
+    print("Usage:", prog, "<compile_file> [define_file_list]")
+    print()
+    print(" <compile_file>     : path to \"compile_commands.json\"")
+    print(" [define_file_list] : list of additional files where macro")
+    print("                      definitions are read for ifdef highlighting.")
+    print("                      List is comma separated")
+    print()
+
+def search_defines_in_files(base_dir, file_list):
+    defines = {}
+    out_defines = []
+    if not base_dir:
+        base_dir = os.getenv("PWD")
+    try:
+        # check if project is indexed
+        if not subprocess.check_output("rc -w " + base_dir,
+                                       shell=True).strip() == base_dir + "/":
+            return out_defines
+        # scan input files
+        for filename in file_list:
+            if not os.path.isfile(filename):
+                filename = os.path.join(base_dir, filename)
+            if not os.path.isfile(filename):
+                raise NameError(filename + " not found")
+            cmd = "rc --wait --path-filter " + filename + \
+                  " -S --kind-filter macrodefinition"
+            define_list = subprocess.check_output(cmd, shell=True).split()
+            for define in define_list:
+                defines[define] = "defined"
+        # return defines
+        for define in defines.keys():
+            out_defines.append(define)
+        return out_defines
+    except (subprocess.CalledProcessError, NameError) as e:
+        print(e)
+        return out_defines
+
+def parse_args(arglist, directory):
+    compile_flags = []
+    for arg in arglist:
+        if arg == "-c" or arg == "-o":
+            continue
+        if arg.startswith("-"):
+            # adjust escaped quotes
+            arg = arg.replace("\\\"", "\"")
+            # adjust escaped spaces
+            arg = arg.replace("%20", " ")
+            # adjust relative paths
+            if rel_path_template.match(arg):
+                arg_start = arg.split("../")[0].replace("./", "")
+                arg = arg_start + directory + "/" + arg.split(arg_start)[1]
+            # avoid redefinition of the same define with another value
+            if arg.startswith("-D"):
+                define = arg.split("=")[0]
+                for cf in compile_flags:
+                    if cf.startswith(define):
+                        continue
+            # add argument to list
+            if not arg in compile_flags:
+                compile_flags.append(arg)
+    return compile_flags
+
+def create_vim_files(comp_json_file, def_file_list):
+    compile_flags = []
+    base_dir = os.path.dirname(comp_json_file)
+    try:
+        comp_json = json.loads(open(comp_json_file, "r").read())
+    except ValueError as e:
+        print(e)
+        return 1
+    print("Parsing json file")
+    for element in comp_json:
+        command = element["command"]
+        directory = element["directory"]
+        command = command.replace("\\ ", "%20")
+        arglist = command.split()
+        for cf in parse_args(arglist, directory):
+            if cf not in compile_flags:
+                compile_flags.append(cf)
+    print("Generating syntastic file")
+    # syntastic file
+    with open(os.path.join(base_dir, ".syntastic_config"), "w") as f:
+        f.write("\n".join(compile_flags))
+        f.write("\n")
+    print("Generating clang_complete file")
+    # clang complete file
+    with open(os.path.join(base_dir, ".clang_complete"), "w") as f:
+        f.write("\n".join(compile_flags))
+        f.write("\n")
+    # defines file
+    print("Generating defines file")
+    define_names = [cf.split("-D")[1].split("=")[0] \
+                    for cf in compile_flags if cf.startswith("-D")]
+    if def_file_list:
+        define_names.extend(search_defines_in_files(base_dir, def_file_list))
+    define_names = list(set(define_names))
+    with open(os.path.join(base_dir, ".defines"), "w") as f:
+        f.write("undefined=*\n")
+        f.write("defined=" + ";".join(define_names))
+        f.write("\n")
+    return 0
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2 or len(sys.argv) > 3:
+        display_help(sys.argv[0])
+        sys.exit(1)
+    in_comp_json = sys.argv[1]
+    if len(sys.argv) == 3:
+        in_def_file_list = sys.argv[2].split(",")
+    else:
+        in_def_file_list = None
+    if not os.path.isfile(in_comp_json):
+        print("File", in_comp_json, "does not exist")
+        sys.exit(1)
+    if not os.access(in_comp_json, os.R_OK):
+        print("File", in_comp_json, "is not readable")
+        sys.exit(1)
+    sys.exit(create_vim_files(in_comp_json, in_def_file_list))
+

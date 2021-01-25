@@ -1,0 +1,14 @@
+[Unit]
+Description=RTags daemon
+Requires=rtags.socket
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/rdm --inactivity-timeout 300 --log-flush
+ExecStartPost=/bin/sh -c "echo +19 > /proc/$MAINPID/autogroup"
+Nice=19
+CPUSchedulingPolicy=idle
+Environment="HOME=%h"
+
+[Install]
+WantedBy=multi-user.target
