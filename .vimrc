@@ -21,6 +21,9 @@ set nowrap
 set nofoldenable
 autocmd FileType c,cpp set foldmethod=indent
 
+" load project specific vimrc
+set secure exrc
+
 " when copying from/to clipboard toggle line number and paste
 " use the literal terminal keycode for F3 (<ESC>[13~)
 nnoremap <silent> <ESC>[13~ :set invnumber invpaste<CR>
@@ -173,6 +176,9 @@ let g:jedi#goto_assignments_command = ""
 let g:jedi#rename_command = "<leader>r"
 let g:jedi#usages_command = "<leader>s"
 
+" vim go
+let g:go_version_warning = 0
+
 " airline settings
 set noshowmode
 let g:airline_theme='bubblegum'
@@ -290,6 +296,7 @@ function SetCOptions()
 	elseif has("cscope") " fallback to cscope
 		set csto=0
 		set cst
+		set nocscopeverbose
 
 		let g:do_cscope_update_on_save = 1
 		let g:cscope_db_dir = $HOME . "/.cscope" . $PWD
