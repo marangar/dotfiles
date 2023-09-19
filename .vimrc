@@ -20,7 +20,8 @@ set wildmode=longest:full,full
 set nowrap
 set nofoldenable
 autocmd FileType c,cpp set foldmethod=indent
-
+" ignore mode changes on virtualbox shared filesystem
+autocmd FileChangedShell * if v:fcs_reason != 'mode' | echom 'WARNING: File has changed (' . v:fcs_reason . ')' | endif
 " load project specific vimrc
 set secure exrc
 
@@ -176,9 +177,6 @@ let g:jedi#goto_assignments_command = ""
 let g:jedi#rename_command = "<leader>r"
 let g:jedi#usages_command = "<leader>s"
 
-" vim go
-let g:go_version_warning = 0
-
 " airline settings
 set noshowmode
 let g:airline_theme='bubblegum'
@@ -207,7 +205,7 @@ let g:syntastic_python_checkers = ['pylint']
 
 " clang_complete configuration
 inoremap <C-@> <C-x><C-u>
-let g:clang_library_path='/usr/lib64/llvm/libclang.so'
+let g:clang_library_path='/usr/lib64/libclang.so'
 let g:clang_complete_macros = 1
 let g:clang_close_preview = 1
 let g:clang_snippets = 1
@@ -222,6 +220,10 @@ let g:rtagsEnable = 0
 
 " close-tags settings
 let g:closetag_filenames = '*.html,*.xhtml,*.phtml'
+
+" vim-go settings
+let g:go_version_warning = 0
+let g:go_metalinter_autosave = 1
 
 " settings specific to c/cpp
 autocmd FileType c,cpp call SetCOptions()
@@ -296,7 +298,6 @@ function SetCOptions()
 	elseif has("cscope") " fallback to cscope
 		set csto=0
 		set cst
-		set nocscopeverbose
 
 		let g:do_cscope_update_on_save = 1
 		let g:cscope_db_dir = $HOME . "/.cscope" . $PWD
@@ -304,7 +305,9 @@ function SetCOptions()
 		let g:cscope_out = g:cscope_db_dir . "/cscope.out"
 
 		if filereadable(g:cscope_out)
+			set nocscopeverbose
 			silent execute "cs add " . g:cscope_out
+			set cscopeverbose
 		endif
 
 		"	's'   symbol: find all references to the token under cursor
@@ -344,13 +347,16 @@ function SetCOptions()
 							\   g:cscope_files
 				silent execute "!cscope -qbRk -I /usr/include -i " .
 							\   g:cscope_files . " -f " . g:cscope_out
+				set nocscopeverbose
 				silent execute "cs add " .  g:cscope_out
+				set cscopeverbose
 				redraw
 			endif
 		endfunction
 	endif
 
 	" c macro expansion
+	if !exists('*ExeExpandCMacro')
 	function! ExeExpandCMacro()
 		"get current info
 		let l:macro_file_name = "__macroexpand__" . tabpagenr()
@@ -410,6 +416,8 @@ function SetCOptions()
 		execute l:macro_window . "wincmd j"
 		execute "resize 10"
 	endfunction
+	endif
+	if !exists('*ExpandCMacro')
 	function! ExpandCMacro()
 		if g:rtagsEnable == 0
 			" disable cscope update
@@ -423,6 +431,7 @@ function SetCOptions()
 			let g:do_cscope_update_on_save = l:backup_do_cscope_update_on_save
 		endif
 	endfunction
+	endif
 	nnoremap <leader>m :call ExpandCMacro()<CR>
 
 	" ifdef highlight plugin
