@@ -353,7 +353,10 @@ function SetCOptions()
 		autocmd BufWinEnter *.c,*.cpp,*.cc,*.h,*.hpp,*.hh :source
 							\ ~/.vim/bundle/ifdef-highlighting/syntax/ifdef.vim | call DefineMacros()
 	else
-		execute "ALEDisable"
+		" disable everything
+		let g:ale_enabled = 0
+		let g:ale_disable_lsp = 1
+		let g:ale_completion_enabled = 0
 	endif
 endfunction
 
