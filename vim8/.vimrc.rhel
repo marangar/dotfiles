@@ -212,7 +212,9 @@ let g:ale_lint_on_save = 1
 let g:ale_lint_on_filetype_changed = 0
 let g:ale_close_preview_on_insert = 1
 let g:ale_linters = {'python': ['pylint', 'pylsp'], 'c': ['cc', 'clangd']}
+let g:ale_linter_aliases = {'sls': 'salt'}
 let g:ale_python_pylint_options = '--disable=C'
+let g:ale_salt_salt_lint_options = '-x 207,208'
 
 nnoremap <leader>s :ALESymbolSearch <C-R>=expand("<cword>")<CR><CR>
 nnoremap <leader>g :ALEGoToImplementation<CR>
@@ -226,6 +228,11 @@ augroup HoverAfterComplete
 	autocmd User ALECompletePost ALEHover
 	autocmd InsertLeave * pclose
 augroup END
+" salt filetype not recognized by default
+autocmd  BufNewFile,BufRead *.sls set filetype=sls
+" robot filetype not recognized by default
+" leave rflint disabled because cmdline options cannot be set
+" autocmd  BufNewFile,BufRead *.robot set filetype=robot
 
 " settings specific to c/cpp
 autocmd FileType c,cpp call SetCOptions()
