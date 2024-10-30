@@ -103,6 +103,23 @@ highlight Constant ctermfg=217
 highlight Comment ctermfg=33
 highlight Special ctermfg=166
 highlight Quickfixline ctermfg=0 ctermbg=116
+" diff colors
+if &diff
+    syntax off
+    highlight ExtraWhitespace ctermbg=NONE
+    hi DiffAdd ctermfg=Green ctermbg=NONE
+    hi DiffChange ctermfg=Cyan ctermbg=NONE
+    hi DiffDelete ctermfg=Red ctermbg=NONE
+    hi DiffText ctermfg=Yellow ctermbg=NONE
+    map <leader>w :call IwhiteToggle()<CR>
+    function! IwhiteToggle()
+        if &diffopt =~ 'iwhite'
+            set diffopt-=iwhite
+        else
+            set diffopt+=iwhite
+        endif
+    endfunction
+endif
 " custom c/c++/python operators highlight
 highlight COpSep ctermfg=221
 autocmd BufWinEnter *.c,*.cpp,*.cc,*.h,*.hpp,*.hh,*.py
