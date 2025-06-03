@@ -2,7 +2,7 @@
 set nocompatible
 colorscheme torte
 if $TERM == "xterm-256color"
-	set t_Co=256
+    set t_Co=256
 endif
 set mouse=nv
 set backspace=indent,eol,start
@@ -13,13 +13,14 @@ set number
 set tabstop=4
 set softtabstop=4
 set shiftwidth=4
-autocmd FileType python set expandtab
+set expandtab
 set hidden " to edit other files while having pending changes on the current
 set wildmenu
 set wildmode=longest:full,full
 set nowrap
 set nofoldenable
 autocmd FileType c,cpp set foldmethod=indent
+autocmd FileType go set noexpandtab
 " ignore mode changes on virtualbox shared filesystem
 autocmd FileChangedShell * if v:fcs_reason != 'mode' | echom 'WARNING: File has changed (' . v:fcs_reason . ')' | endif
 " load project specific vimrc
@@ -66,7 +67,7 @@ nnoremap <leader><TAB> :set invlist<cr>
 
 " grep with automatic display in quickfix window
 command! -bar -nargs=1 -complete=file Grep
-	\ silent execute "grep! -I " . <q-args> | redraw! | cw
+    \ silent execute "grep! -I " . <q-args> | redraw! | cw
 cnoreabbrev grep Grep
 nnoremap <leader>e :Grep -r -w -I <C-R>=expand("<cword>")<CR> *<CR>
 
@@ -86,7 +87,7 @@ cnoreabbrev cls Cls
 
 " clear quickfix list
 function ClearQuickfixList()
-	call setqflist([])
+    call setqflist([])
 endfunction
 command! ClearQuickfixList call ClearQuickfixList()
 nmap <leader>cf :ClearQuickfixList<cr>
@@ -100,48 +101,65 @@ highlight TabLine ctermfg=black ctermbg=yellow
 highlight CursorLine ctermfg=black ctermbg=grey
 highlight Constant ctermfg=216
 highlight Special ctermfg=166
+" diff colors
+if &diff
+    syntax off
+    highlight ExtraWhitespace ctermbg=NONE
+    hi DiffAdd ctermfg=Green ctermbg=NONE
+    hi DiffChange ctermfg=Cyan ctermbg=NONE
+    hi DiffDelete ctermfg=Red ctermbg=NONE
+    hi DiffText ctermfg=Yellow ctermbg=NONE
+    map <leader>w :call IwhiteToggle()<CR>
+    function! IwhiteToggle()
+        if &diffopt =~ 'iwhite'
+            set diffopt-=iwhite
+        else
+            set diffopt+=iwhite
+        endif
+    endfunction
+endif
 " custom c/c++/python operators highlight
 highlight COpSep ctermfg=229
 autocmd BufWinEnter *.c,*.cpp,*.cc,*.h,*.hpp,*.hh,*.py
-	\ :syntax match COpSep
-	\ "\v([\+\-!=%&\|<~])|(/)([/\*])@!|(\*)(/)@!|(\-)@<!(\>)"
-	" regex explanation:
-	"     \v               : vim regex
-	"     ([\+\-!=%&\|<~]) : match any of +  -  !  =  %  &  |  <  ~
-	"     (/)([/\*])@!     : match / when not followed by / or *
-	"     (\*)(/)@!        : match * when not followed by /
-	"     (\-)@<!(\>)      : match > when not preceded by -
+    \ :syntax match COpSep
+    \ "\v([\+\-!=%&\|<~])|(/)([/\*])@!|(\*)(/)@!|(\-)@<!(\>)"
+    " regex explanation:
+    "     \v               : vim regex
+    "     ([\+\-!=%&\|<~]) : match any of +  -  !  =  %  &  |  <  ~
+    "     (/)([/\*])@!     : match / when not followed by / or *
+    "     (\*)(/)@!        : match * when not followed by /
+    "     (\-)@<!(\>)      : match > when not preceded by -
 " custom c/c++/python separators highlight
 highlight CWordSep ctermfg=159
 autocmd BufWinEnter *.c,*.cpp,*.cc,*.h,*.hpp,*.py,*.hh
-	\ :syntax match CWordSep "[(){}\[\]\.,]\|->\|::\|< *\w\+ *>"
-	" regex explanation:
-	"     [(){}\[\]\.,] : match any of ( ) { } [ ] . ,
-	"     ->            : match ->
-	"     ::            : match ::
-	"     < *\w\+ *>    : match cpp templates (ex. <myclass>)
+    \ :syntax match CWordSep "[(){}\[\]\.,]\|->\|::\|< *\w\+ *>"
+    " regex explanation:
+    "     [(){}\[\]\.,] : match any of ( ) { } [ ] . ,
+    "     ->            : match ->
+    "     ::            : match ::
+    "     < *\w\+ *>    : match cpp templates (ex. <myclass>)
 " custom c/c++ functions highlight
 highlight CUserFunction ctermfg=152
 autocmd BufWinEnter *.c,*.cpp,*.cc,*.h,*.hpp,*.hh
-	\ :syntax match CUserFunction
-	\ "\v(typedef\s*)@<!(<\h\w*>(\s|\n)*\()"me=e-1,he=e-1
-	" regex explanation:
-	"     \v               : vim regex
-	"     (typedef\s*)@<!  : what comes next must not be preceded by 'typedef '
-	"     <\h\w*>          : whole word, head of word followed by word chars
-	"     (\s|\n)*\(       : one or more spaces or newlines followed by '('
-	"     me=e-1           : exclude from matched text final '('
-	"     he=e-1           : exclude from highlighted text final '('
+    \ :syntax match CUserFunction
+    \ "\v(typedef\s*)@<!(<\h\w*>(\s|\n)*\()"me=e-1,he=e-1
+    " regex explanation:
+    "     \v               : vim regex
+    "     (typedef\s*)@<!  : what comes next must not be preceded by 'typedef '
+    "     <\h\w*>          : whole word, head of word followed by word chars
+    "     (\s|\n)*\(       : one or more spaces or newlines followed by '('
+    "     me=e-1           : exclude from matched text final '('
+    "     he=e-1           : exclude from highlighted text final '('
 " custom c/c++ function pointers highlight
 highlight CUserFunctionPointer ctermfg=152
 autocmd BufWinEnter *.c,*.cpp,*.cc,*.h,*.hpp,*.hh
-	\ :syntax match CUserFunctionPointer
-	\ "(\s*\*\s*\h\w*\s*)\(\s\|\n\)*("me=e-1,he=e-1
-	" regex explanation:
-	"     (\s*\*\s*\h\w*\s*) : to match '( * function_pointer )'
-	"     \(\s\|\n\)*(       : one or more spaces or newlines followed by '('
-	"     me=e-1             : exclude from matched text final '('
-	"     he=e-1             : exclude from highlighted text final '('
+    \ :syntax match CUserFunctionPointer
+    \ "(\s*\*\s*\h\w*\s*)\(\s\|\n\)*("me=e-1,he=e-1
+    " regex explanation:
+    "     (\s*\*\s*\h\w*\s*) : to match '( * function_pointer )'
+    "     \(\s\|\n\)*(       : one or more spaces or newlines followed by '('
+    "     me=e-1             : exclude from matched text final '('
+    "     he=e-1             : exclude from highlighted text final '('
 " mainly for cscope output when multiple definitions are found
 highlight ModeMsg ctermfg=82
 
@@ -167,6 +185,7 @@ Plugin 'tpope/vim-commentary'
 Plugin 'tmhedberg/SimpylFold'
 Plugin 'alvan/vim-closetag'
 Plugin 'dense-analysis/ale'
+Plugin 'stephpy/vim-yaml'
 call vundle#end()
 filetype on
 
@@ -218,143 +237,143 @@ nnoremap <leader>r :call ClearQuickfixList() \| ALEFindReferences -quickfix \| c
 nnoremap <leader>h :ALEHover<CR>
 " try to compensate lack of signature-help during complete
 augroup HoverAfterComplete
-	autocmd!
-	" preview is prematurely closed by 'pclose' in ale#completion#Done ...
-	autocmd User ALECompletePost ALEHover
-	autocmd InsertLeave * pclose
+    autocmd!
+    " preview is prematurely closed by 'pclose' in ale#completion#Done ...
+    autocmd User ALECompletePost ALEHover
+    autocmd InsertLeave * pclose
 augroup END
 
 " settings specific to c/cpp
 autocmd FileType c,cpp call SetCOptions()
 function SetCOptions()
-	" load compile_commands.json in memory
-	if !exists('*LoadCCJson')
-	function! LoadCCJson()
-		let g:cc_json_dict = {}
-		let l:proj_root = ale#c#FindProjectRoot(bufnr("%"))
-		if filereadable(l:proj_root . "/compile_commands.json")
-			let l:cc_json = join(readfile(l:proj_root . "/compile_commands.json"), "\n")
-			let l:cc_json_obj = json_decode(l:cc_json)
-			for elem in l:cc_json_obj
-				let l:e_file_path = elem["directory"] . "/" . elem["file"]
-				if filereadable(l:e_file_path)
-					let g:cc_json_dict[l:e_file_path] = elem
-				else
-					let g:cc_json_dict[elem["file"]] = elem
-				endif
-			endfor
-			return 1
-		endif
-		return 0
-	endfunction
-	endif
-	" c macro expansion
-	if !exists('*ExeExpandCMacro')
-	function! ExeExpandCMacro()
-		"get current info
-		let l:macro_file_name = "__macroexpand__" . tabpagenr()
-		let l:file_row = line(".")
-		let l:file_name = expand("%")
-		let l:file_name_path = expand("%:p")
-		let l:file_window = winnr()
-		"create mark
-		execute "normal! Oint " . l:macro_file_name . ";"
-		execute "w"
-		"open tiny window ... check if we have already an open buffer for macro
-		if bufwinnr(l:macro_file_name) != -1
-			execute bufwinnr(l:macro_file_name) . "wincmd w"
-			setlocal modifiable
-			execute "normal! ggdG"
-		else
-			execute "bot 5split " . l:macro_file_name
-			execute "setlocal filetype=cpp"
-			execute "setlocal buftype=nofile"
-			nnoremap <buffer> q :q!<CR>
-			execute "ALEDisableBuffer"
-		endif
-		" set modifiable
-		setlocal modifiable
-		" find gcc flags
-		let g:macro_expand_gcc_flags = ""
-		let l:cc_json_command = get(get(g:cc_json_dict, l:file_name_path, {}), "command", "")
-		for flag in split(l:cc_json_command)
-			if flag =~ "^-I"
-				let g:macro_expand_gcc_flags .= flag . " "
-			endif
-		endfor
-		" execute gcc
-		silent! execute "r!gcc " . g:macro_expand_gcc_flags . " -E " . l:file_name
-		"keep specific macro line
-		if search(l:macro_file_name) != 0
-			execute "normal! ggV/int " . l:macro_file_name . ";$\<CR>d"
-			execute "normal! jdG"
-			"indent
-			silent execute "%!indent -st -kr 2> /dev/null"
-			execute "normal! gg=G"
-			"resize window
-			execute "normal! G"
-			let l:macro_end_row = line(".")
-			execute "resize " . l:macro_end_row
-			execute "normal! gg"
-		else
-			execute "normal! ggdG"
-			execute "normal! iERROR: see ':messages' for details.\<esc>"
-			execute "normal! oTry to set g:macro_expand_gcc_flags with '-I' options. Ex:\<esc>"
-			execute "normal! olet g:macro_expand_gcc_flags='-I/usr/include/mydir'\<esc>"
-		endif
-		"no modifiable
-		setlocal nomodifiable
-		let l:macro_window = winnr()
-		"return to origin place
-		execute l:file_window . "wincmd w"
-		execute l:file_row
-		execute "normal!u"
-		execute "w"
-		"highlight origin line
-		let @/ = getline('.')
-		"go back to macro window
-		execute l:macro_window . "wincmd j"
-		execute "resize 10"
-	endfunction
-	endif
-	if !exists('*ExpandCMacro')
-	function! ExpandCMacro()
-		" expand macro
-		execute "ALEDisable"
-		call ExeExpandCMacro()
-		execute "ALEEnable"
-	endfunction
-	endif
-	" macro definitions
-	if !exists('*DefineMacros')
-	function! DefineMacros()
-		call Undefine('\k\+')
-		let l:cc_json_command = get(get(g:cc_json_dict, expand("%:p"), {}), "command", "")
-		for flag in split(l:cc_json_command)
-			if flag =~ "^-D"
-				let l:def = split(flag, "=")[0]
-				let l:def = l:def[2:]
-				execute "Define " . l:def
-			endif
-		endfor
-	endfunction
-	endif
+    " load compile_commands.json in memory
+    if !exists('*LoadCCJson')
+    function! LoadCCJson()
+        let g:cc_json_dict = {}
+        let l:proj_root = ale#c#FindProjectRoot(bufnr("%"))
+        if filereadable(l:proj_root . "/compile_commands.json")
+            let l:cc_json = join(readfile(l:proj_root . "/compile_commands.json"), "\n")
+            let l:cc_json_obj = json_decode(l:cc_json)
+            for elem in l:cc_json_obj
+                let l:e_file_path = elem["directory"] . "/" . elem["file"]
+                if filereadable(l:e_file_path)
+                    let g:cc_json_dict[l:e_file_path] = elem
+                else
+                    let g:cc_json_dict[elem["file"]] = elem
+                endif
+            endfor
+            return 1
+        endif
+        return 0
+    endfunction
+    endif
+    " c macro expansion
+    if !exists('*ExeExpandCMacro')
+    function! ExeExpandCMacro()
+        "get current info
+        let l:macro_file_name = "__macroexpand__" . tabpagenr()
+        let l:file_row = line(".")
+        let l:file_name = expand("%")
+        let l:file_name_path = expand("%:p")
+        let l:file_window = winnr()
+        "create mark
+        execute "normal! Oint " . l:macro_file_name . ";"
+        execute "w"
+        "open tiny window ... check if we have already an open buffer for macro
+        if bufwinnr(l:macro_file_name) != -1
+            execute bufwinnr(l:macro_file_name) . "wincmd w"
+            setlocal modifiable
+            execute "normal! ggdG"
+        else
+            execute "bot 5split " . l:macro_file_name
+            execute "setlocal filetype=cpp"
+            execute "setlocal buftype=nofile"
+            nnoremap <buffer> q :q!<CR>
+            execute "ALEDisableBuffer"
+        endif
+        " set modifiable
+        setlocal modifiable
+        " find gcc flags
+        let g:macro_expand_gcc_flags = ""
+        let l:cc_json_command = get(get(g:cc_json_dict, l:file_name_path, {}), "command", "")
+        for flag in split(l:cc_json_command)
+            if flag =~ "^-I"
+                let g:macro_expand_gcc_flags .= flag . " "
+            endif
+        endfor
+        " execute gcc
+        silent! execute "r!gcc " . g:macro_expand_gcc_flags . " -E " . l:file_name
+        "keep specific macro line
+        if search(l:macro_file_name) != 0
+            execute "normal! ggV/int " . l:macro_file_name . ";$\<CR>d"
+            execute "normal! jdG"
+            "indent
+            silent execute "%!indent -st -kr 2> /dev/null"
+            execute "normal! gg=G"
+            "resize window
+            execute "normal! G"
+            let l:macro_end_row = line(".")
+            execute "resize " . l:macro_end_row
+            execute "normal! gg"
+        else
+            execute "normal! ggdG"
+            execute "normal! iERROR: see ':messages' for details.\<esc>"
+            execute "normal! oTry to set g:macro_expand_gcc_flags with '-I' options. Ex:\<esc>"
+            execute "normal! olet g:macro_expand_gcc_flags='-I/usr/include/mydir'\<esc>"
+        endif
+        "no modifiable
+        setlocal nomodifiable
+        let l:macro_window = winnr()
+        "return to origin place
+        execute l:file_window . "wincmd w"
+        execute l:file_row
+        execute "normal!u"
+        execute "w"
+        "highlight origin line
+        let @/ = getline('.')
+        "go back to macro window
+        execute l:macro_window . "wincmd j"
+        execute "resize 10"
+    endfunction
+    endif
+    if !exists('*ExpandCMacro')
+    function! ExpandCMacro()
+        " expand macro
+        execute "ALEDisable"
+        call ExeExpandCMacro()
+        execute "ALEEnable"
+    endfunction
+    endif
+    " macro definitions
+    if !exists('*DefineMacros')
+    function! DefineMacros()
+        call Undefine('\k\+')
+        let l:cc_json_command = get(get(g:cc_json_dict, expand("%:p"), {}), "command", "")
+        for flag in split(l:cc_json_command)
+            if flag =~ "^-D"
+                let l:def = split(flag, "=")[0]
+                let l:def = l:def[2:]
+                execute "Define " . l:def
+            endif
+        endfor
+    endfunction
+    endif
 
-	" load compile commands json
-	let l:cc_json_loaded = LoadCCJson()
-	" advanced features only when compile-commands is present
-	if l:cc_json_loaded
-		" map expand-macro function
-		nnoremap <leader>m :call ExpandCMacro()<CR>
-		" ifdef highlight plugin
-		autocmd BufWinEnter *.c,*.cpp,*.cc,*.h,*.hpp,*.hh :source
-							\ ~/.vim/bundle/ifdef-highlighting/syntax/ifdef.vim | call DefineMacros()
-	else
-		" disable everything
-		let g:ale_enabled = 0
-		let g:ale_disable_lsp = 1
-		let g:ale_completion_enabled = 0
-	endif
+    " load compile commands json
+    let l:cc_json_loaded = LoadCCJson()
+    " advanced features only when compile-commands is present
+    if l:cc_json_loaded
+        " map expand-macro function
+        nnoremap <leader>m :call ExpandCMacro()<CR>
+        " ifdef highlight plugin
+        autocmd BufWinEnter *.c,*.cpp,*.cc,*.h,*.hpp,*.hh :source
+                            \ ~/.vim/bundle/ifdef-highlighting/syntax/ifdef.vim | call DefineMacros()
+    else
+        " disable everything
+        let g:ale_enabled = 0
+        let g:ale_disable_lsp = 1
+        let g:ale_completion_enabled = 0
+    endif
 endfunction
 
 " tabline showing modified buffers left behind
@@ -362,44 +381,44 @@ hi TabLine ctermfg=113 ctermbg=238 cterm=none
 hi TabLineSel ctermfg=238 ctermbg=113 cterm=bold
 hi TabLineFill ctermfg=16 ctermbg=113 cterm=bold
 function! RenderTabline()
-	let l:buffers = filter(range(1, bufnr('$')), 'getbufvar(v:val, "&mod")')
-	let l:buffers = filter(l:buffers, '!getbufvar(v:val, "is_being_deleted")')
-	" no buffers or only one modified buffer which is currently being
-	" displayed
-	if (len(l:buffers) == 0) ||
-	 \ (len(l:buffers) == 1 && bufnr('%') == l:buffers[0])
-		set showtabline=1
-		return ""
-	endif
-	" at least one modified buffer which is not being displayed
-	set showtabline=2
-	let l:header = "%#TabLine#%SOTHER\ UNSAVED:\ "
-	let l:sep = "%#TabLine#%S\ "
-	let l:trailer = "%#TabLine#"
-	let l:tabline = l:header
-	for l:bufnum in l:buffers
-		if l:bufnum == bufnr('%')
-			continue
-		endif
-		let l:tabline .= "%#TabLineFill#%(%S[" . l:bufnum . "]%S\ " .
-		                 \ fnamemodify(bufname(l:bufnum), ':t') . "\ %)"
-		let l:tabline .= l:sep
-	endfor
-	let l:tabline .= l:trailer
-	return l:tabline
+    let l:buffers = filter(range(1, bufnr('$')), 'getbufvar(v:val, "&mod")')
+    let l:buffers = filter(l:buffers, '!getbufvar(v:val, "is_being_deleted")')
+    " no buffers or only one modified buffer which is currently being
+    " displayed
+    if (len(l:buffers) == 0) ||
+     \ (len(l:buffers) == 1 && bufnr('%') == l:buffers[0])
+        set showtabline=1
+        return ""
+    endif
+    " at least one modified buffer which is not being displayed
+    set showtabline=2
+    let l:header = "%#TabLine#%SOTHER\ UNSAVED:\ "
+    let l:sep = "%#TabLine#%S\ "
+    let l:trailer = "%#TabLine#"
+    let l:tabline = l:header
+    for l:bufnum in l:buffers
+        if l:bufnum == bufnr('%')
+            continue
+        endif
+        let l:tabline .= "%#TabLineFill#%(%S[" . l:bufnum . "]%S\ " .
+                         \ fnamemodify(bufname(l:bufnum), ':t') . "\ %)"
+        let l:tabline .= l:sep
+    endfor
+    let l:tabline .= l:trailer
+    return l:tabline
 endfunction
 autocmd BufDelete * call setbufvar(+expand("<abuf>"), "is_being_deleted", 1)
 autocmd BufWritePost,BufEnter,BufFilePost,BufDelete *
-			\ if (&buftype != "nofile") | let g:tablinestr = RenderTabline()
-			\ | set tabline=%!g:tablinestr | endif
+            \ if (&buftype != "nofile") | let g:tablinestr = RenderTabline()
+            \ | set tabline=%!g:tablinestr | endif
 
 """""""""""""""""""""""""""""""""
 " project specific configurations
 """""""""""""""""""""""""""""""""
 
 if filereadable("README") && system("head -c 12 README") == "Linux kernel"
-	" restore tab to 8 char
-	set tabstop=8
-	set softtabstop=8
-	set shiftwidth=8
+    " restore tab to 8 char
+    set tabstop=8
+    set softtabstop=8
+    set shiftwidth=8
 endif
