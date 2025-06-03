@@ -22,6 +22,7 @@
     c = commit -a -m
     d = diff
     s = status -s
+    sh = show
     co = checkout
     ps = push
     pl = pull
