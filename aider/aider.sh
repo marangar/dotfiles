@@ -3,7 +3,7 @@ export MISTRAL_API_KEY=$(cat $HOME/.config/mistral.token)
 export HUGGINGFACE_API_KEY=$(cat $HOME/.config/huggingface.token)
 export OPENROUTER_API_KEY=$(cat $HOME/.config/openrouter.token)
 
-OPTS="--no-auto-commits --dark-mode --cache-prompts --watch-files $@"
+OPTS="--no-auto-commits --dark-mode --watch-files $@"
 
 models=(
     "gemini/gemini-2.5-flash-preview-05-20"
