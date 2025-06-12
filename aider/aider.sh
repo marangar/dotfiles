@@ -8,14 +8,16 @@ OPTS="--no-auto-commits --dark-mode --watch-files $@"
 models=(
     "gemini/gemini-2.5-flash-preview-05-20"
     "mistral/mistral-large-latest"
-    "mistral/codestral-latest"
+    "mistral/magistral-medium-2506"
+    "mistral/devstral-small-2505"
     "openrouter/qwen/qwen3-235b-a22b:free"
     "openrouter/deepseek/deepseek-r1:free"
 )
 context_size=(
     "1000000"
     "128000"
-    "32000"
+    "128000"
+    "128000"
     "40960"
     "163840"
 )
