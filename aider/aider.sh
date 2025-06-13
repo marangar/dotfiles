@@ -28,18 +28,18 @@ if [ -z "$MODEL" ]; then
     done
     read -p "Enter model number (default: 1): " choice
     if [[ -z "$choice" ]]; then
-        MODEL="${models[0]}" # Default to the first model
-        CTX_SIZE=${context_size[0]}
+        model_index=0
     elif [[ "$choice" =~ ^[0-9]+$ ]] && (( choice >= 1 && choice <= ${#models[@]} )); then
-        MODEL="${models[$((choice-1))]}"
-        CTX_SIZE=${context_size[$((choice-1))]}
+        model_index=$((choice-1))
     else
-        echo "Invalid choice. Using default model: ${models[0]}"
-        MODEL="${models[0]}" # Default if input is invalid
-        CTX_SIZE=${context_size[0]}
+        echo "Invalid choice. Exiting ..."
+        exit 1
     fi
+    MODEL="${models[$model_index]}"
+    CTX_SIZE=${context_size[$model_index]}
 else
     echo "Using model from MODEL environment variable: $MODEL"
+    CTX_SIZE=0
 fi
 
 if [ -d .git ]; then
