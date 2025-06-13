@@ -1,7 +1,13 @@
-export GEMINI_API_KEY=$(cat $HOME/.config/gemini.token)
-export MISTRAL_API_KEY=$(cat $HOME/.config/mistral.token)
-export HUGGINGFACE_API_KEY=$(cat $HOME/.config/huggingface.token)
-export OPENROUTER_API_KEY=$(cat $HOME/.config/openrouter.token)
+#!/bin/bash
+
+GEMINI_TOKEN=$HOME/.config/gemini.token
+MISTRAL_TOKEN=$HOME/.config/mistral.token
+HUGGINGFACE_TOKEN=$HOME/.config/huggingface.token
+OPENROUTER_TOKEN=$HOME/.config/openrouter.token
+[ -e $GEMINI_TOKEN ] && export GEMINI_API_KEY=$(cat $GEMINI_TOKEN)
+[ -e $MISTRAL_TOKEN ] && export MISTRAL_API_KEY=$(cat $MISTRAL_TOKEN)
+[ -e $HUGGINGFACE_TOKEN ] && export HUGGINGFACE_API_KEY=$(cat $HUGGINGFACE_TOKEN)
+[ -e $OPENROUTER_TOKEN ] && export OPENROUTER_API_KEY=$(cat $OPENROUTER_TOKEN)
 
 OPTS="--no-auto-commits --dark-mode --watch-files $@"
 
