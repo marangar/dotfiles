@@ -42,7 +42,7 @@ if [ -z "$MODEL" ]; then
         exit 1
     fi
     MODEL="${models[$model_index]}"
-    CTX_SIZE=${context_size[$model_index]}
+    CTX_SIZE=$(( ${context_size[$model_index]} * 98 / 100 ))
 else
     echo "Using model from MODEL environment variable: $MODEL"
     CTX_SIZE=0
