@@ -4,10 +4,18 @@ GEMINI_TOKEN=$HOME/.config/gemini.token
 MISTRAL_TOKEN=$HOME/.config/mistral.token
 HUGGINGFACE_TOKEN=$HOME/.config/huggingface.token
 OPENROUTER_TOKEN=$HOME/.config/openrouter.token
+GITHUBCOPILOT_TOKEN=$HOME/.config/githubcopilot.token
 [ -e $GEMINI_TOKEN ] && export GEMINI_API_KEY=$(cat $GEMINI_TOKEN)
 [ -e $MISTRAL_TOKEN ] && export MISTRAL_API_KEY=$(cat $MISTRAL_TOKEN)
 [ -e $HUGGINGFACE_TOKEN ] && export HUGGINGFACE_API_KEY=$(cat $HUGGINGFACE_TOKEN)
 [ -e $OPENROUTER_TOKEN ] && export OPENROUTER_API_KEY=$(cat $OPENROUTER_TOKEN)
+[ -e $GITHUBCOPILOT_TOKEN ] && export OPENAI_API_BASE="https://api.githubcopilot.com" \
+                            && export OPENAI_API_KEY=$(cat $GITHUBCOPILOT_TOKEN) \
+                            && copilot_models=( $(curl -sf https://api.githubcopilot.com/models \
+                                                -H "Authorization: Bearer $OPENAI_API_KEY" \
+                                                -H "Content-Type: application/json" \
+                                                -H "Copilot-Integration-Id: vscode-chat" \
+                                                | jq -r '.data[].id') )
 
 OPTS="--no-auto-commits --dark-mode --watch-files $@"
 
@@ -19,6 +27,9 @@ models=(
     "openrouter/qwen/qwen3-235b-a22b:free"
     "openrouter/deepseek/deepseek-r1:free"
 )
+if [ ${#copilot_models[@]} -gt 0 ]; then
+    models+=( "${copilot_models[@]/#/openai\/}" )
+fi
 context_size=(
     "1000000"
     "128000"
@@ -27,6 +38,10 @@ context_size=(
     "40960"
     "163840"
 )
+if [ ${#copilot_models[@]} -gt 0 ]; then
+    # add conservative 64K for all copilot models
+    context_size+=( $(yes 64000 | head -n "${#copilot_models[@]}") )
+fi
 if [ -z "$MODEL" ]; then
     echo "Available Models:"
     for i in "${!models[@]}"; do
