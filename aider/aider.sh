@@ -65,13 +65,20 @@ fi
 
 if [ -d .git ]; then
     USE_GIT=Y
-    REPO_SIZE=$(du --block-size=1 -c $(git ls-files) | tail -1 | cut -f1)
+    readarray -t FILES < <(
+        git ls-files |
+            while IFS= read -r file; do
+                if ! file --mime "$file" | grep -q binary; then
+                    echo "$file"
+                fi
+            done
+    )
+    REPO_SIZE=$(du --block-size=1 -c "${FILES[@]}" | tail -1 | cut -f1)
     # 1 token ≈ 4 characters, 1 character ≈ 1 byte
     if [ $REPO_SIZE -lt $((CTX_SIZE*4)) ]; then
-        FILES=$(git ls-files)
         OPTS+=" --map-tokens 0"
     else
-        FILES=
+        FILES=()
     fi
 fi
 if ls CONVENTIONS.md 2> /dev/null; then
@@ -79,4 +86,4 @@ if ls CONVENTIONS.md 2> /dev/null; then
 fi
 [ -z "$USE_GIT" ] && OPTS+=" --no-git"
 
-aider --model "$MODEL" $OPTS $FILES $RFILES
+aider --model "$MODEL" $OPTS "${FILES[@]}" $RFILES
