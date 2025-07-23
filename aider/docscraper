@@ -1,16 +1,33 @@
 #!/bin/sh
 
-# Scrapes documentation from a URL and converts it to Markdown suitable for aider convention files
-# to provide context to the LLM.
-
-if [ $# -eq 0 ]; then
-    echo "Usage: $(basename "$0") <URL> [URL...]"
-    echo
-    echo "Generate aider 'convention' Markdown context from documentation URLs."
-    echo "suitable for providing LLM context about a project's conventions and style."
-    echo
-    echo "Outputs a file in the current directory named like 'technology-name.md'."
+if [ -z "$1" ]; then
+    echo "Usage: MODEL=mistral/devstral-small-2505 $0 URL"
+    echo "       MODEL=openrouter/qwen/qwen3-235b-a22b:free $0 URL"
+    echo "       MODEL=openrouter/deepseek/deepseek-r1:free $0 URL"
     exit 1
 fi
 
-aider --detect-urls --no-git --no-auto-commits --yes --message "Please summarize the documentation at the following URL into a concise form suitable for giving an LLM context about a project. Write the summary as Markdown into a .md file with a relevant short kebab-case name like 'technology-name.md'. Where appropriate make sure you include a suite of relevant code examples to help the LLM write code in the suggested style of the project. The result will be concatenated with summaries of other technologies so it should have a clear h1 header indicating the content of this markdown section/file. $*"
+GEMINI_TOKEN=$HOME/.config/gemini.token
+MISTRAL_TOKEN=$HOME/.config/mistral.token
+OPENROUTER_TOKEN=$HOME/.config/openrouter.token
+[ -e $GEMINI_TOKEN ] && export GEMINI_API_KEY=$(cat $GEMINI_TOKEN)
+[ -e $MISTRAL_TOKEN ] && export MISTRAL_API_KEY=$(cat $MISTRAL_TOKEN)
+[ -e $OPENROUTER_TOKEN ] && export OPENROUTER_API_KEY=$(cat $OPENROUTER_TOKEN)
+
+ENV="-e GEMINI_API_KEY=$GEMINI_API_KEY \
+     -e OPENROUTER_API_KEY=$OPENROUTER_API_KEY \
+     -e MISTRAL_API_KEY=$MISTRAL_API_KEY \
+     -e HTTP_PROXY=$HTTP_PROXY -e HTTPS_PROXY=$HTTPS_PROXY \
+     -e http_proxy=$http_proxy -e https_proxy=$https_proxy"
+
+AIDER="docker run -it --rm --user $(id -u):$(id -g) --volume $(pwd):/app:z $ENV paulgauthier/aider"
+
+[ -z "$MODEL" ] && MODEL=mistral/devstral-small-2505
+
+$AIDER --detect-urls --no-git --no-auto-commits --yes --dark-mode --edit-format whole --model $MODEL \
+       --message "Please produce a textual reference guide from the documentation at the URL $1 .
+                  Produce it in a concise form suitable for giving an LLM the context about a specific library or module. \
+                  Include function/method/keyword signatures together with a very short description that contains the most important aspects to pay attention to. \
+                  When the list is too long include only the most basic or frequently used functions/methods/keywords and skip the rest. \
+                  If possible include also non-obvious best practices or other idiomatic patterns specific of the library/module. \
+                  Write the summary as Markdown into a .md file with a relevant name like 'technology-name.md'."
