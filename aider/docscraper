@@ -28,6 +28,6 @@ $AIDER --detect-urls --no-git --no-auto-commits --yes --dark-mode --edit-format 
        --message "Please produce a textual reference guide from the documentation at the URL $1 .
                   Produce it in a concise form suitable for giving an LLM the context about a specific library or module. \
                   Include function/method/keyword signatures together with a very short description that contains the most important aspects to pay attention to. \
-                  When the list is too long include only the most basic or frequently used functions/methods/keywords and skip the rest. \
+                  When the list is too long (> 50) include only the most basic or frequently used functions/methods/keywords and skip the rest, otherwise include all of them. \
                   If possible include also non-obvious best practices or other idiomatic patterns specific of the library/module. \
                   Write the summary as Markdown into a .md file with a relevant name like 'technology-name.md'."
