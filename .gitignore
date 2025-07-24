@@ -1,3 +1,5 @@
 backup.sh
 *.tar
 .token
+.aider*
+.pki
