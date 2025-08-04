@@ -20,7 +20,8 @@ GITHUBCOPILOT_TOKEN=$HOME/.config/githubcopilot.token
 OPTS="--no-auto-commits --dark-mode --watch-files $@"
 
 models=(
-    "gemini/gemini-2.5-flash-preview-05-20"
+    "gemini/gemini-2.5-pro"
+    "gemini/gemini-2.5-flash"
     "mistral/mistral-large-latest"
     "mistral/magistral-medium-2506"
     "mistral/devstral-small-2505"
@@ -31,6 +32,7 @@ if [ ${#copilot_models[@]} -gt 0 ]; then
     models+=( "${copilot_models[@]/#/openai\/}" )
 fi
 context_size=(
+    "1000000"
     "1000000"
     "128000"
     "128000"
