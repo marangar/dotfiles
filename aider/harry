@@ -4,11 +4,13 @@ GEMINI_TOKEN=$HOME/.config/gemini.token
 MISTRAL_TOKEN=$HOME/.config/mistral.token
 HUGGINGFACE_TOKEN=$HOME/.config/huggingface.token
 OPENROUTER_TOKEN=$HOME/.config/openrouter.token
+GROQ_TOKEN=$HOME/.config/groq.token
 GITHUBCOPILOT_TOKEN=$HOME/.config/githubcopilot.token
 [ -e $GEMINI_TOKEN ] && export GEMINI_API_KEY=$(cat $GEMINI_TOKEN)
 [ -e $MISTRAL_TOKEN ] && export MISTRAL_API_KEY=$(cat $MISTRAL_TOKEN)
 [ -e $HUGGINGFACE_TOKEN ] && export HUGGINGFACE_API_KEY=$(cat $HUGGINGFACE_TOKEN)
 [ -e $OPENROUTER_TOKEN ] && export OPENROUTER_API_KEY=$(cat $OPENROUTER_TOKEN)
+[ -e $GROQ_TOKEN ] && export GROQ_API_KEY=$(cat $GROQ_TOKEN)
 [ -e $GITHUBCOPILOT_TOKEN ] && export OPENAI_API_BASE="https://api.githubcopilot.com" \
                             && export OPENAI_API_KEY=$(cat $GITHUBCOPILOT_TOKEN) \
                             && copilot_models=( $(curl -sf https://api.githubcopilot.com/models \
@@ -28,6 +30,9 @@ models=(
     "openrouter/qwen/qwen3-235b-a22b:free"
     "openrouter/deepseek/deepseek-r1:free"
     "openrouter/z-ai/glm-4.5-air:free"
+    "groq/moonshotai/kimi-k2-instruct"
+    "groq/openai/gpt-oss-120b"
+    "groq/deepseek-r1-distill-llama-70b"
 )
 if [ ${#copilot_models[@]} -gt 0 ]; then
     models+=( "${copilot_models[@]/#/openai\/}" )
@@ -41,6 +46,9 @@ context_size=(
     "40960"
     "163840"
     "131072"
+    "131072"
+    "131072"
+    "131072"
 )
 if [ ${#copilot_models[@]} -gt 0 ]; then
     # add conservative 64K for all copilot models
@@ -49,8 +57,9 @@ fi
 if [ -z "$MODEL" ]; then
     echo "Available Models:"
     for i in "${!models[@]}"; do
-        echo "$((i+1)). ${models[$i]}"
+        echo "[$((i+1))] - ${models[$i]}"
     done
+    echo
     read -p "Enter model number (default: 1): " choice
     if [[ -z "$choice" ]]; then
         model_index=0
