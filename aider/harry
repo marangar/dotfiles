@@ -46,9 +46,9 @@ context_size=(
     "40960"
     "163840"
     "131072"
-    "131072"
-    "131072"
-    "131072"
+    "10240"   # limited by TPM
+    "8192"    # limited by TPM
+    "6144"    # limited by TPM
 )
 if [ ${#copilot_models[@]} -gt 0 ]; then
     # add conservative 64K for all copilot models
