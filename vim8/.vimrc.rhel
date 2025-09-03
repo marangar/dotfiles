@@ -96,6 +96,14 @@ endfunction
 command! ClearQuickfixList call ClearQuickfixList()
 nmap <leader>cf :ClearQuickfixList<cr>
 
+" open in last position
+if has("nvim")
+    autocmd BufReadPost *
+            \ if line("'\"") > 0 && line("'\"") <= line("$") |
+            \   execute "normal! g`\"" |
+            \ endif
+endif
+
 " various object colors
 highlight Normal ctermfg=15 ctermbg=236
 highlight Search ctermbg=LightBlue
@@ -206,6 +214,9 @@ let g:airline#extensions#tabline#enabled = 0
 let g:airline#extensions#tabline#show_buffers = 0
 let g:airline#extensions#tabline#show_tabs = 0
 let airline#extensions#tabline#disable_refresh = 1
+if has("nvim")
+    highlight search term=bold ctermfg=159 ctermbg=0 gui=bold guifg=Cyan guibg=Black
+endif
 
 " nerdtree mapping
 nnoremap <C-n> :NERDTreeToggle<CR>

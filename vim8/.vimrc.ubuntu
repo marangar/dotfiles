@@ -96,6 +96,14 @@ endfunction
 command! ClearQuickfixList call ClearQuickfixList()
 nmap <leader>cf :ClearQuickfixList<cr>
 
+" open in last position
+if has("nvim")
+    autocmd BufReadPost *
+            \ if line("'\"") > 0 && line("'\"") <= line("$") |
+            \   execute "normal! g`\"" |
+            \ endif
+endif
+
 " various object colors
 highlight Search ctermbg=LightBlue
 highlight LineNr ctermfg=109 ctermbg=240
