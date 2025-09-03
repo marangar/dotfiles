@@ -28,8 +28,12 @@ set secure exrc
 
 " when copying from/to clipboard toggle line number and paste
 " use the literal terminal keycode for F3 (<ESC>[13~)
-nnoremap <silent> <ESC>[13~ :set invnumber invpaste<CR>
-set pastetoggle=<ESC>[13~ "for insert mode
+if has("nvim")
+    nnoremap <silent> <F3> :set invnumber invpaste<CR>
+else
+    nnoremap <silent> <ESC>[13~ :set invnumber invpaste<CR>
+endif
+set pastetoggle=<F3> "for insert mode
 
 " remap 'paste from default register' when in command line mode
 cnoremap <C-v> <C-r>"
