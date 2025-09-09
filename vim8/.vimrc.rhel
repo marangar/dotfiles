@@ -261,14 +261,15 @@ nnoremap <leader>g :ALEGoToImplementation<CR>
 nnoremap <leader>d :ALEGoToDefinition<CR>
 nnoremap <leader>r :call ClearQuickfixList() \| ALEFindReferences -quickfix \| copen<CR>
 nnoremap <leader>h :ALEHover<CR>
-if !has("nvim")
-    " try to compensate lack of signature-help during complete
-    augroup HoverAfterComplete
-        autocmd!
-        " preview is prematurely closed by 'pclose' in ale#completion#Done ...
-        autocmd User ALECompletePost ALEHover
-        autocmd InsertLeave * pclose
-    augroup END
+" try to compensate lack of signature-help during complete
+augroup HoverAfterComplete
+    autocmd!
+    " preview is prematurely closed by 'pclose' in ale#completion#Done ...
+    autocmd User ALECompletePost ALEHover
+    autocmd InsertLeave * pclose
+augroup END
+if has("nvim")
+	let g:ale_hover_to_preview = 1
 endif
 " salt filetype not recognized by default
 autocmd  BufNewFile,BufRead *.sls set filetype=sls
