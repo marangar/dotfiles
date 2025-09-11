@@ -269,7 +269,11 @@ augroup HoverAfterComplete
     autocmd InsertLeave * pclose
 augroup END
 if has("nvim")
-	let g:ale_hover_to_preview = 1
+    " nvim hovers sometimes in the command line
+    let g:ale_hover_to_preview = 1
+    " nvim hangs on exit when :wq python files (stuck on pylsp)
+    command! Wq execute 'ALEDisableBuffer' | write | quit
+    cabbrev wq Wq
 endif
 " salt filetype not recognized by default
 autocmd  BufNewFile,BufRead *.sls set filetype=sls
