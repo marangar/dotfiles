@@ -94,8 +94,9 @@ if [ -d .git ]; then
         FILES=()
     fi
 fi
-if ls CONVENTIONS.md 2> /dev/null; then
-    RFILES="--read CONVENTIONS.md"
+CONVFILE=$(find . -name CONVENTIONS.md)
+if [ -n "$CONVFILE" ]; then
+    RFILES="--read $CONVFILE"
 fi
 [ -z "$USE_GIT" ] && OPTS+=" --no-git"
 
