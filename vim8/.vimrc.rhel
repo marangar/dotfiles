@@ -237,7 +237,7 @@ let g:closetag_filenames = '*.html,*.xhtml,*.phtml'
 """ ALE tries to figure out the project root by looking for a compile_commnads.json file.
 """ If this is not found then it looks for .git/HEAD, configure, Makefile, CMakeLists.txt, and finally .git
 let g:airline#extensions#ale#enabled = 1
-let g:ale_open_list = 1
+let g:ale_open_list = 'on_save'
 let g:ale_keep_list_window_open = 0
 let g:ale_completion_enabled = 1
 let g:ale_completion_delay = 10
