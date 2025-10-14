@@ -340,7 +340,7 @@ function SetCOptions()
             endif
         endfor
         " execute gcc
-        silent! execute "r!gcc " . g:macro_expand_gcc_flags . " -E " . l:file_name
+        silent! execute "r!gcc " . g:macro_expand_gcc_flags . " -E -P " . l:file_name
         "keep specific macro line
         if search(l:macro_file_name) != 0
             execute "normal! ggV/int " . l:macro_file_name . ";$\<CR>d"
