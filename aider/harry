@@ -6,6 +6,7 @@ HUGGINGFACE_TOKEN=$HOME/.config/huggingface.token
 OPENROUTER_TOKEN=$HOME/.config/openrouter.token
 GROQ_TOKEN=$HOME/.config/groq.token
 GITHUBCOPILOT_TOKEN=$HOME/.config/githubcopilot.token
+OLLAMA_TOKEN=$HOME/.config/ollama.token
 [ -e $GEMINI_TOKEN ] && export GEMINI_API_KEY=$(cat $GEMINI_TOKEN)
 [ -e $MISTRAL_TOKEN ] && export MISTRAL_API_KEY=$(cat $MISTRAL_TOKEN)
 [ -e $HUGGINGFACE_TOKEN ] && export HUGGINGFACE_API_KEY=$(cat $HUGGINGFACE_TOKEN)
@@ -18,8 +19,15 @@ GITHUBCOPILOT_TOKEN=$HOME/.config/githubcopilot.token
                                                 -H "Content-Type: application/json" \
                                                 -H "Copilot-Integration-Id: vscode-chat" \
                                                 | jq -r '.data[].id') )
+[ -e $OLLAMA_TOKEN ] && export OPENAI_API_BASE="https://ollama.com/v1" \
+                     && export OPENAI_API_KEY=$(cat $OLLAMA_TOKEN) \
+                     && ollama_cloud_models=( $(curl -sf https://ollama.com/api/tags \
+                                              -H "Authorization: Bearer $OPENAI_API_KEY" \
+                                              -H "Content-Type: application/json" \
+                                              | jq -r '.models[].name') )
 
 OPTS="--no-auto-commits --dark-mode --watch-files $@"
+OPTS+=" --edit-format ask" # start in ask mode
 
 models=(
     "gemini/gemini-2.5-pro"
@@ -37,6 +45,9 @@ models=(
 if [ ${#copilot_models[@]} -gt 0 ]; then
     models+=( "${copilot_models[@]/#/openai\/}" )
 fi
+if [ ${#ollama_cloud_models[@]} -gt 0 ]; then
+    models+=( "${ollama_cloud_models[@]/#/openai\/}" )
+fi
 context_size=(
     "1000000"
     "1000000"
@@ -53,6 +64,11 @@ context_size=(
 if [ ${#copilot_models[@]} -gt 0 ]; then
     # add conservative 64K for all copilot models
     context_size+=( $(yes 64000 | head -n "${#copilot_models[@]}") )
+fi
+if [ ${#ollama_cloud_models[@]} -gt 0 ]; then
+    # add conservative 64K for all ollama models
+    context_size+=( $(yes 64000 | head -n "${#ollama_cloud_models[@]}") )
+    OPTS+=" --no-show-model-warnings"
 fi
 if [ -z "$MODEL" ]; then
     echo "Available Models:"
