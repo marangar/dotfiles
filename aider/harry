@@ -66,8 +66,8 @@ if [ ${#copilot_models[@]} -gt 0 ]; then
     context_size+=( $(yes 64000 | head -n "${#copilot_models[@]}") )
 fi
 if [ ${#ollama_cloud_models[@]} -gt 0 ]; then
-    # add conservative 64K for all ollama models
-    context_size+=( $(yes 64000 | head -n "${#ollama_cloud_models[@]}") )
+    # add conservative 128K for all ollama models
+    context_size+=( $(yes 128000 | head -n "${#ollama_cloud_models[@]}") )
     OPTS+=" --no-show-model-warnings"
 fi
 if [ -z "$MODEL" ]; then
