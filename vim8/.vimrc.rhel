@@ -104,6 +104,17 @@ if has("nvim")
             \ endif
 endif
 
+" terminal mode
+if has("terminal") && !&diff
+    tnoremap <Esc> <C-\><C-n>
+    augroup terminal_settings
+      autocmd!
+      autocmd TermOpen * startinsert
+      autocmd TermOpen * setlocal nonumber norelativenumber
+      autocmd TermOpen * call clearmatches()
+    augroup END
+endif
+
 " various object colors
 highlight Normal ctermfg=15 ctermbg=236
 highlight Search ctermbg=LightBlue
