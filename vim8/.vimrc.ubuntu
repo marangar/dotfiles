@@ -105,7 +105,7 @@ if has("nvim")
 endif
 
 " terminal mode
-if !&diff
+if !&diff && has('nvim')
     tnoremap <Esc> <C-\><C-n>
     augroup terminal_settings
       autocmd!
