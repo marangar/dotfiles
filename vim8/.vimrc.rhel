@@ -21,6 +21,7 @@ set nowrap
 set nofoldenable
 autocmd FileType c,cpp set foldmethod=indent
 autocmd FileType go set noexpandtab
+autocmd FileType markdown setlocal wrap
 " ignore mode changes on virtualbox shared filesystem
 autocmd FileChangedShell * if v:fcs_reason != 'mode' | echom 'WARNING: File has changed (' . v:fcs_reason . ')' | endif
 " load project specific vimrc
