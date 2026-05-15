@@ -1,0 +1,6 @@
+[delta]
+    side-by-side = false
+    line-numbers = true
+    features = weeping-willow
+[include]
+    path = ~/.config/delta-themes.gitconfig
