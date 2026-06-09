@@ -215,6 +215,7 @@ Plugin 'dense-analysis/ale'
 Plugin 'stephpy/vim-yaml'
 Plugin 'vmware-archive/salt-vim'
 Plugin 'aliou/bats.vim'
+Plugin 'towolf/vim-helm'
 call vundle#end()
 filetype on
 
