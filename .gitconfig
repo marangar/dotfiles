@@ -26,4 +26,10 @@
     co = checkout
     ps = push
     pl = pull
-    dd = "!git diff --name-only | fzf --preview 'git -c core.pager=cat diff --color=always -- {}' --preview-window=right:70% --bind 'enter:execute(git --no-pager diff -U10 -- {} | delta --paging=always)'"
+    dd = "!git diff --name-only | fzf \
+          --preview 'git --no-pager diff --word-diff=color \
+                     --word-diff-regex=\"[[:alnum:]_]+|[^[:space:]]\" -- {} | \
+                     fold -s -w ${FZF_PREVIEW_COLUMNS:-80}' \
+          --preview-window=right:70% \
+          --scrollbar='│█' \
+          --bind 'enter:execute(git --no-pager diff -U10 -- {} | delta --paging=always)'"
