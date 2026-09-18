@@ -1,7 +1,7 @@
 [diff]
-	tool = vimdiff
+    tool = vimdiff
 [difftool]
-	prompt = false
+    prompt = false
 # git-delta settings
 [core]
     pager = delta
@@ -26,3 +26,4 @@
     co = checkout
     ps = push
     pl = pull
+    dd = "!git diff --name-only | fzf --preview 'git -c core.pager=cat diff --color=always -- {}' --preview-window=right:70% --bind 'enter:execute(git --no-pager diff -U10 -- {} | delta --paging=always)'"
