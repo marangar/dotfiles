@@ -26,13 +26,16 @@
     co = checkout
     ps = push
     pl = pull
-    dd = "!git diff --name-only HEAD | fzf \
-          --preview 'git --no-pager diff --word-diff=color \
-                     --word-diff-regex=\"[[:alnum:]_]+|[^[:space:]]\" HEAD -- {} | \
-                     perl -CSD -pe \"s/[\\x{FE00}-\\x{FE0F}]//g\" | \
-                     fold -w ${FZF_PREVIEW_COLUMNS:-80}' \
-          --preview-window=right:70% \
-          --scrollbar='│█' \
-          --bind 'ctrl-r:reload(git diff --name-only HEAD)' \
-          --bind 'enter:execute(git --no-pager diff -U10 HEAD -- {} | delta --paging=always)' \
-          --bind 'ctrl-b:execute(bat --paging=always {})'"
+    dd = "!f() { \
+            TARGET=${1:-HEAD}; \
+            git diff --name-only \"$TARGET\" | fzf \
+                --preview 'git --no-pager diff --word-diff=color \
+                           --word-diff-regex=\"[[:alnum:]_]+|[^[:space:]]\" '$TARGET' -- {} | \
+                           perl -CSD -pe \"s/[\\x{FE00}-\\x{FE0F}]//g\" | \
+                           fold -w ${FZF_PREVIEW_COLUMNS:-80}' \
+                --preview-window=right:70% \
+                --scrollbar='│█' \
+                --bind 'ctrl-r:reload(git diff --name-only '$TARGET')' \
+                --bind 'enter:execute(git --no-pager diff -U10 '$TARGET' -- {} | delta --paging=always)' \
+                --bind 'ctrl-b:execute(bat --paging=always {})'; \
+          }; f"
