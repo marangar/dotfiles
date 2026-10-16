@@ -24,6 +24,12 @@ autocmd FileType go set noexpandtab
 autocmd FileType markdown setlocal wrap
 " ignore mode changes on virtualbox shared filesystem
 autocmd FileChangedShell * if v:fcs_reason != 'mode' | echom 'WARNING: File has changed (' . v:fcs_reason . ')' | endif
+" on nvim, write in-place for files under /src (CIFS mount): backupcopy=auto's
+" rename strategy makes CIFS report a changed mtime, triggering a spurious
+" 'file changed since reading it' warning on save
+if has("nvim")
+    autocmd BufReadPre,BufNewFile /src/*,/downloads/* setlocal backupcopy=yes
+endif
 " load project specific vimrc
 set secure exrc
 
